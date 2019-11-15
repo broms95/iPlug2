@@ -217,7 +217,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
+    int mSec = static_cast<int>(std::floor(1000.0 / sFPS));
+
+    // windows timer resolution is approx 15ms, adjust to get near desired FPS
+    if (mSec == 16) mSec = 15; //60FPS timer
+    else if (mSec == 33) mSec = 30; //30FPS timer
+    else if (mSec == 50) mSec = 40; //20FPS timer
+
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
